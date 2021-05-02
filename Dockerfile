@@ -113,8 +113,14 @@ RUN set -eux \
 	&& mkdir -p var/cache var/log \
 	&& composer dump-autoload --classmap-authoritative
 
+COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+RUN chmod +x /usr/local/bin/docker-entrypoint
+
 USER 1000
 RUN mkdir /var/www/.composer
+
+ENTRYPOINT ["docker-entrypoint"]
+CMD ["php-fpm"]
 
 
 FROM nginx:${NGINX_VERSION}-alpine AS sf5_nginx
