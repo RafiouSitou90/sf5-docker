@@ -16,5 +16,16 @@
         <li>Your controller at <code><a href="{{ '/var/www/app/src/Controller/HomeController.php'|file_link(0) }}">src/Controller/HomeController.php</a></code></li>
         <li>Your template at <code><a href="{{ '/var/www/app/templates/home/index.html.twig'|file_link(0) }}">templates/home/index.html.twig</a></code></li>
     </ul>
+
+    <hr>
+
+    <h2>Posts</h2>
+    <ol>
+        {% for post in posts %}
+            <li>{{ post.title }}</li>
+        {% else %}
+            <li>No posts</li>
+        {% endfor %}
+    </ol>
 </div>
 {% endblock %}
