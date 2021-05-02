@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+    dbtest:
+        image: postgres:13-alpine
+        container_name: container_sf5_db_test
+        restart: never
+        environment:
+            POSTGRES_DB: symfony_test
+            POSTGRES_USER: symfony_test
+            POSTGRES_PASSWORD: symfony_test
+        ports:
+            - "5433:5433"
+        networks:
+            - dev
+
+    phptest:
+        image: rafiousitou/sf5-php-8.0:dev
+        container_name: container_sf5_php_test
+        restart: never
+        volumes:
+            - ./:/var/www/app:rw,cached
+        depends_on:
+            - dbtest
+        networks:
+            - dev
+
+networks:
+    dev:

@@ -1,8 +1,8 @@
 DC=docker-compose
 DE=docker exec
 COMPOSER=COMPOSER_MEMORY_LIMIT=-1 composer
-SYMFONY_CONSOLE=php bin/console
-DOCKER_RUN_TEST=$(DOCKER_COMPOSE) -f docker-compose.test.yml run --rm
+SYMFONY_CONSOLE=$(DC) exec php ./bin/console
+DOCKER_RUN_TEST=$(DC) -f docker-compose.test.yml run --rm
 
 ## —— Docker for dev environment ——————————————————————————————————————————————————
 up: ## Start docker for dev server
@@ -62,3 +62,7 @@ clean-db-test: cache-hard cache-test ## Reset the database of the tests environm
 	$(SYMFONY_CONSOLE) doctrine:database:drop --if-exists --force --env=test
 	$(SYMFONY_CONSOLE) doctrine:database:create --env=test
 	$(SYMFONY_CONSOLE) doctrine:migrations:migrate --no-interaction --env=test
+
+## —— tests ———————————————————————————————————————————————————————————————
+test: ## Run all tests
+	$(DOCKER_RUN_TEST) phptest bin/phpunit
