@@ -11,6 +11,20 @@ up: ## Start docker for dev server
 ## —— Docker for prod environment ——————————————————————————————————————————————————
 up-prod:
 	$(DC) -f docker-compose.prod.yml up -d --build
+	$(DC) exec php ./bin/console doctrine:migrations:migrate --no-interaction
+	$(DC) exec php ./bin/console doctrine:fixtures:load --no-interaction
+
+## —— Docker for prod environment ——————————————————————————————————————————————————
+rebuild-prod:
+	$(DC) -f docker-compose.prod.yml down -v --remove-orphans
+	$(DC) -f docker-compose.prod.yml rm -vsf
+	$(DC) -f docker-compose.prod.yml up -d --build
+	$(DC) exec php ./bin/console doctrine:migrations:migrate --no-interaction
+	$(DC) exec php ./bin/console doctrine:fixtures:load --no-interaction
+
+fixtures-prod:
+	$(DC) exec php ./bin/console doctrine:migrations:migrate --no-interaction
+	$(DC) exec php ./bin/console doctrine:fixtures:load --no-interaction
 
 stop:
 	$(DC) stop

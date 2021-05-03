@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+    php:
+        build:
+            context: .
+            target: sf5_php
+            dockerfile: Dockerfile.prod
+        image: rafiousitou/sf5-php-8.0:latest
+        restart: on-failure
+        environment:
+            APP_ENV: prod
+            PHP_DATE_TIMEZONE: ${PHP_DATE_TIMEZONE:-UTC}
+            DATABASE_URL: 'postgresql://postgres:secret@192.168.1.71/prod_db?serverVersion=13&charset=utf8'
+
+    nginx:
+        build:
+            context: .
+            target: sf5_nginx
+            dockerfile: Dockerfile.prod
+        image: rafiousitou/sf5-nginx-1.19:latest
+        restart: on-failure
+        ports:
+            - "8080:80"
+        depends_on:
+            - php
