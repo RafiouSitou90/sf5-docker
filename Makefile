@@ -1,7 +1,7 @@
 DC=docker-compose
 DE=docker exec
 COMPOSER=COMPOSER_MEMORY_LIMIT=-1 composer
-SYMFONY_CONSOLE=$(DC) exec php ./bin/console
+SYMFONY_CONSOLE=$(DC) exec php bin/console
 DOCKER_RUN_TEST=$(DC) -f docker-compose.test.yml run --rm
 
 ## —— Docker for dev environment ——————————————————————————————————————————————————
@@ -11,20 +11,20 @@ up: ## Start docker for dev server
 ## —— Docker for prod environment ——————————————————————————————————————————————————
 up-prod:
 	$(DC) -f docker-compose.prod.yml up -d --build
-	$(DC) exec php ./bin/console doctrine:migrations:migrate --no-interaction
-	$(DC) exec php ./bin/console doctrine:fixtures:load --no-interaction
+	$(DC) exec php bin/console doctrine:migrations:migrate --no-interaction
+	$(DC) exec php bin/console doctrine:fixtures:load --no-interaction
 
 ## —— Docker for prod environment ——————————————————————————————————————————————————
 rebuild-prod:
 	$(DC) -f docker-compose.prod.yml down -v --remove-orphans
 	$(DC) -f docker-compose.prod.yml rm -vsf
 	$(DC) -f docker-compose.prod.yml up -d --build
-	$(DC) exec php ./bin/console doctrine:migrations:migrate --no-interaction
-	$(DC) exec php ./bin/console doctrine:fixtures:load --no-interaction
+	$(DC) exec php bin/console doctrine:migrations:migrate --no-interaction
+	$(DC) exec php bin/console doctrine:fixtures:load --no-interaction
 
 fixtures-prod:
-	$(DC) exec php ./bin/console doctrine:migrations:migrate --no-interaction
-	$(DC) exec php ./bin/console doctrine:fixtures:load --no-interaction
+	$(DC) exec php bin/console doctrine:migrations:migrate --no-interaction
+	$(DC) exec php bin/console doctrine:fixtures:load --no-interaction
 
 stop:
 	$(DC) stop
@@ -55,8 +55,8 @@ cache: ## Clear the cache
 	$(SYMFONY_CONSOLE) cache:warmup
 
 cache-test: ## Clear the tests environment cache
-	$(SYMFONY_CONSOLE) cache:clear --env=test
-	$(SYMFONY_CONSOLE) cache:warmup --env=test
+	$(DOCKER_RUN_TEST) phptest bin/console cache:clear --env=test
+	$(DOCKER_RUN_TEST) phptest bin/console cache:warmup --env=test
 
 cache-hard: ## Delete the cache folder sub-folder
 	rm -fR var/cache/*
@@ -73,9 +73,14 @@ clean-db: ## Reset the database
 	$(SYMFONY_CONSOLE) doctrine:migrations:migrate --no-interaction
 
 clean-db-test: cache-hard cache-test ## Reset the database of the tests environment
-	$(SYMFONY_CONSOLE) doctrine:database:drop --if-exists --force --env=test
-	$(SYMFONY_CONSOLE) doctrine:database:create --env=test
-	$(SYMFONY_CONSOLE) doctrine:migrations:migrate --no-interaction --env=test
+	$(DOCKER_RUN_TEST) phptest bin/console doctrine:database:drop --if-exists --force --env=test
+	$(DOCKER_RUN_TEST) phptest bin/console doctrine:database:create --env=test
+	$(DOCKER_RUN_TEST) phptest bin/console doctrine:migrations:migrate --no-interaction --env=test
+
+prepare-db-test: ## Reset the database of the tests environment
+	$(DOCKER_RUN_TEST) phptest bin/console doctrine:database:drop --if-exists --force --env=test
+	$(DOCKER_RUN_TEST) phptest bin/console doctrine:database:create --env=test
+	$(DOCKER_RUN_TEST) phptest bin/console doctrine:migrations:migrate --no-interaction --env=test
 
 ## —— tests ———————————————————————————————————————————————————————————————
 test: ## Run all tests
